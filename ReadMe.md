@@ -12,7 +12,7 @@ Think of it as a GUI of sorts, made of Windows shortcuts and PowerShell menus.
 
 Provided you have Chocolatey [installed](https://chocolatey.org/install), open PowerShell (as admin) and enter: 
 
-<big>**`choco install ChocoShortcuts`**</big>
+<big><big><big>**`choco install ChocoShortcuts`**</big></big></big>
 
 More info here: [chocolatey.org/packages/ChocoShortcuts](https://chocolatey.org/packages/ChocoShortcuts/)
 
