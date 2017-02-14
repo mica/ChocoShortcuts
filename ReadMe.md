@@ -1,27 +1,15 @@
 # Chocolatey Shortcuts ![Icon](./Icon.png)
 
-Launch into various [Chocolatey](https://chocolatey.org/) package management tasks via file shortcuts and command line menus. 
+Launch command line menus via file shortcuts for installing, updating, and uninstalling [Chocolatey](https://chocolatey.org/) packages. 
 
-Keep shortcuts for all your packages handy in a (portable) directory of your choice.
-
-Think of it as a GUI of sorts, made of Windows shortcuts and PowerShell menus.
+Generate shortcuts for each of your packages to a portable directory of your choice.
 
 ![Screenshot](./Screenshot.png)
 
-## Installation
+At installation, a "Chocolatey Shortcuts" folder is placed on your desktop. Rename or move it as you like (I keep mine synced between computers in Dropbox). 
 
-Provided you have Chocolatey [installed](https://chocolatey.org/install), open PowerShell (as admin) and enter: 
+Create shortcuts for packages using "+Add Package Shortcuts". There you'll find options to generate shortcuts individually or in bulk, as well as a search function for finding package IDs.
 
-#### `choco install ChocoShortcuts` 
+Launching package shortcuts will present you with options to install (if not installed), update (if available), or uninstall packages. Update multiple packages at once using "+Check for Package Updates".
 
-More info here: [chocolatey.org/packages/ChocoShortcuts](https://chocolatey.org/packages/ChocoShortcuts/)
-
-## Usage
-
-Upon installation, you'll find a "Chocolatey Shortcuts" folder on your desktop. You can rename or move the folder wherever you like, or keep it synced between computers in your Dropbox, OneDrive, etc. 
-
-To create shortcuts for packages, use "+Add Package Shortcuts". You'll find options to generate shortcuts individually, in bulk, or for all currently installed packages. You can use the search function to find package IDs.
-
-Upon launching package shortcuts, you'll have options to install (if not installed), update (if available), or uninstall the package.
-
-Check all installed packages for updates using "+Check for Package Updates". There, you can update multiple packages at once.
+Visit [chocolatey.org/packages/ChocoShortcuts](https://chocolatey.org/packages/ChocoShortcuts/) for more info.

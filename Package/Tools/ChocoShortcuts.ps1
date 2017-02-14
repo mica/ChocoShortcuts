@@ -1,44 +1,58 @@
-﻿# Chocolatey Shortcuts v0.1
+﻿# Chocolatey Shortcuts v0.2
 # https://github.com/mica/ChocoShortcuts/
 
+param([Parameter(Position = 0)] [string]$App = $App, [string]$Opt)
+$WDir = (Get-Location).Path
+function Header {
+    Write-Host '  ║' -ForegroundColor DarkGreen -NoNewline
+    Write-Host ' Chocolatey Shortcuts' -ForegroundColor Green -NoNewline
+    Write-Host ' ║' -ForegroundColor DarkGreen
+    Write-Host '  ╙──────────────────────╜' -ForegroundColor DarkGreen
+}
+function y {
+    Write-Host $Args -NoNewline -ForegroundColor Yellow
+}
+function w {
+    Write-Host $Args -NoNewline
+}
 function Check {
-    if ($App -eq $null) {
-        $Header
-        'Launch this script via shortcuts to manage Chocolatey packages'
-        ''
-        'Enter [1] to generate the initial "Add" and "Check" shortcuts'
-        'Or press [Enter] to exit'
-        $Entry = Read-Host
-        if ($Entry -eq '1') {
+    Clear-Host; Header
+    if ($App -eq '') {
+        'Launch this script via the shortcuts that were created on the desktop at installaion';''
+        (w 'Enter ')+(y '1 ')+'to regenerate those shortcuts to a folder of your choice'
+        (w 'Enter a ')+(y 'package ID ')+'to manage it sans shortcut'
+        (w 'Or press ')+(y 'Enter ')+'to exit'
+        $Entry = Read-Host "`n"
+        if ($Entry -eq '') {
+            Exit
+        }
+        elseif ($Entry -eq '1') {
             Add-Type -AssemblyName System.Windows.Forms
             $FolderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog -Property @{
-                Description = "Choose a folder for your Chocolatey shortcuts`r`nMove or rename it anytime "+[char]0x2013+" it's portable!"
+                Description = "Choose an inital location for your shortcuts folder`nYou may move or rename it any time"
             }
             [void]$FolderBrowser.ShowDialog()
             $InstallDir = $FolderBrowser.SelectedPath
             if ($InstallDir -eq '') {
-                Clear-Host
                 Check
             }
             else {
                 $WScriptShell = New-Object -ComObject WScript.Shell
                 $Shortcut = $WScriptShell.CreateShortcut("$InstallDir\+Add Package Shortcuts.lnk")
-                $Shortcut.TargetPath = 'powershell.exe'
-                $Shortcut.Arguments = "-Command `"`$WDir = Get-Location | Select-Object -ExpandProperty Path; Start-Process powershell.exe -Verb RunAs -ArgumentList \`"-NoProfile -ExecutionPolicy Unrestricted -Command `"```$App = `'1`'; Set-Location `'`"`$WDir`"`'; `& `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`'`"\`"`""
+                $Shortcut.TargetPath = 'CMD'
+                $Shortcut.Arguments = "/C PowerShell `"SL -PSPath `'%CD%`'; `$Path = (GL).Path; SL ~; Start PowerShell -Verb RunAs -Args \`"-NoProfile -ExecutionPolicy Unrestricted `"SL -PSPath `'`"`$Path`"`'; & `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`' 1`"\`"`""
                 $Shortcut.IconLocation = '%ProgramData%\chocolatey\choco.exe'
                 $Shortcut.Save()
                 $Shortcut = $WScriptShell.CreateShortcut("$InstallDir\+Check for Package Updates.lnk")
-                $Shortcut.TargetPath = 'powershell.exe'
-                $Shortcut.Arguments = "-Command `"`$WDir = Get-Location | Select-Object -ExpandProperty Path; Start-Process powershell.exe -Verb RunAs -ArgumentList \`"-NoProfile -ExecutionPolicy Unrestricted -Command `"```$App = `'2`'; Set-Location `'`"`$WDir`"`'; `& `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`'`"\`"`""
+                $Shortcut.TargetPath = 'CMD'
+                $Shortcut.Arguments = "/C PowerShell `"SL -PSPath `'%CD%`'; `$Path = (GL).Path; SL ~; Start PowerShell -Verb RunAs -Args \`"-NoProfile -ExecutionPolicy Unrestricted `"SL -PSPath `'`"`$Path`"`'; & `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`' 2`"\`"`""
                 $Shortcut.IconLocation = '%ProgramData%\chocolatey\choco.exe'
                 $Shortcut.Save()
-                Clear-Host
-                $Header
-                "Shortcuts have been created in $InstallDir"
-                ''
-                'Enter [1] to open the folder'
-                'Or press [Enter] to exit'
-                $Entry = Read-Host
+                Clear-Host; Header
+                "Shortcuts have been created in $InstallDir";''
+                (w 'Enter ')+(y '1 ')+'to open the folder'
+                (w 'Or press ')+(y 'Enter ')+'to exit'
+                $Entry = Read-Host "`n"
                 if ($Entry -eq '1') {
                     Invoke-Item $InstallDir
                     Exit
@@ -48,44 +62,38 @@ function Check {
                 }
             }
         }
-        elseif ($Entry -eq '') {
-            Exit
-        }
         else {
-            Clear-Host
+            $App = $Entry
             Check
         }
     }
     elseif ($App -eq '1') {
-        $Header
         AddNew
     }
     elseif ($App -eq '2') {
         UpdateCheck
     }
-    $Header
     "Checking Chocolatey.org for $App..."
-    $Check = (choco upgrade $App -noop -r) -split '\|'
+    $Check = (choco upgrade $App --noop -r) -split '\|'
     if ($Check -join '' -match 'not found with') {
-        Clear-Host
-        $Header
+        Clear-Host; Header
         "$App was not found on Chocolatey.org"
-        'Either the repository was inaccessible' 
-        'Or your shortcut has an incorrect package ID'
-        ''
-        'Enter [1] to try again'
-        "Enter [2] to delete the $App shortcut and create a new one"
-        'Or press [Enter] to exit'
-        $Entry = Read-Host
+        '  Either the repository is inaccessible' 
+        '  Or your shortcut''s package ID is invalid';''
+        (w 'Enter ')+(y '1 ')+"to check again for $App on Chocolatey.org"
+        (w 'Enter ')+(y '2 ')+"to delete the $App shortcut and create a new one"
+        (w 'Or press ')+(y 'Enter ')+'to exit'
+        $Entry = Read-Host "`n"
         if ($Entry -eq '1') {
-            Clear-Host
             Check
         }
         elseif ($Entry -eq '2') {
             Remove-Item ".\$App.lnk"
-            Clear-Host
-            $Header
+            Clear-Host; Header
             AddNew
+        }
+        else {
+            Exit
         }
     }
     elseif ($Check -join '' -match 'would have'){
@@ -102,21 +110,47 @@ function Check {
         Update
     }
 }
-
 function Install {
-    Clear-Host
-    $Header
-    "$App is not installed"
-    ''
-    "Enter [1] to install $Avail" 
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    Clear-Host; Header
+    "$App is not installed";''
+    (w 'Enter ')+(y '1 ')+"to install $Avail"
+    (w 'Enter ')+(y '2 ')+'to install with options'
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '1') {
-        Clear-Host
-        $Header
-        choco install $App -y
-        Read-Host "`r`nPress [Enter] to exit"
+        Clear-Host; Header
+        Invoke-Expression "choco install $App $Opt -r -y";''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
+    }
+    elseif ($Entry -eq '2') {
+        Clear-Host; Header
+        "Your shortcut is configured to install using:"
+        Write-Host "  choco install $App -y -r $Opt" -ForegroundColor Cyan;''
+        (w 'Enter additional ')+(y 'options')+''
+        (w 'Or press ')+(y 'Enter ')+'to cancel'
+        $Entry = Read-Host "`n"
+        if ($Entry -eq '') {
+            Install
+        }
+        else {
+            $ExtOpt = $Entry
+            (w 'Enter ')+(y '1 ')+"to begin installation with: $ExtOpt"
+            (w 'Or press ')+(y 'Enter ')+'to cancel'
+            $Entry = Read-Host "`n"
+            if ($Entry -eq '') {
+                Install
+            }
+            elseif ($Entry -eq '1') {
+                Clear-Host; Header
+                Invoke-Expression "choco install $App $Opt $ExtOpt -r -y";''
+                (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
+                Exit
+            }
+
+        }
+
+        
     }
     elseif ($Entry -eq '') {
         Exit
@@ -125,21 +159,17 @@ function Install {
         Install
     }
 }
-
 function UpToDate {
-    Clear-Host
-    $Header
-    "$App $Curr is installed"
-    'No updates are available'
-    ''
-    "Enter [2] to uninstall $App"
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    Clear-Host; Header
+    "$App $Curr is installed";''
+    '  No updates are available';''
+    (w 'Enter ')+(y '2 ')+"to uninstall $App"
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '2') {
-        Clear-Host
-        $Header
-        choco uninstall $App -y -x -a
-        Read-Host "`r`nPress [Enter] to exit"
+        Clear-Host; Header
+        choco uninstall $App -r -a -x -y;''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     elseif ($Entry -eq '') {
@@ -149,29 +179,24 @@ function UpToDate {
         UpToDate
     }
 }
-
 function Update {
-    Clear-Host
-    $Header
-    "$App $Curr is installed"
-    "The $Avail update is available"
-    ''
-    "Enter [1] to update $App"
-    "Enter [2] to uninstall $App"
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    Clear-Host; Header
+    "$App $Curr is installed";''
+    "  The $Avail update is available";''
+    (w 'Enter ')+(y '1 ')+'to install the update'
+    (w 'Enter ')+(y '2 ')+"to uninstall $App"
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '1') {
-        Clear-Host
-        $Header
-        choco upgrade $App -y
-        Read-Host "`r`nPress [Enter] to exit"
+        Clear-Host; Header
+        choco upgrade $App -r -y;''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     elseif ($Entry -eq '2') {
-        Clear-Host
-        $Header
-        choco uninstall $App -y -x -a
-        Read-Host "`r`nPress [Enter] to exit"
+        Clear-Host; Header
+        choco uninstall $App -r -a -x -y;''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     elseif ($Entry -eq '') {
@@ -181,15 +206,13 @@ function Update {
         Update
     }
 }
-
 function AddNew {
-    'Create new shortcuts for installing/updating/uninstalling packages:'
-    ''
-    'Enter the [ID] of one or more (comma separated) packages'
-    'Enter [1] to search Chocolatey.org for package IDs'
-    'Enter [2] to make shortcuts for all currently installed packages'
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    'Create new shortcuts for installing, updating, or uninstalling packages';''
+    (w 'Enter one or more comma separated ')+(y 'package ID')+(w ', optionally, w/ ')+(y 'options ')+'(excluding -y and -r)'
+    (w 'Enter ')+(y '1 ')+'to search for package IDs on the Chocolatey.org repository'
+    (w 'Enter ')+(y '2 ')+'to generate shortcuts for all currently installed packages'
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '1') {
         Search
     }
@@ -203,72 +226,77 @@ function AddNew {
     else {
         Generate
     }
-
 }
-
 function Generate {
-    Clear-Host
-    $Header
-    ForEach ($Package in $Entry -split ',' -replace '\s') {
+    Clear-Host; Header
+    ForEach ($Item in $Entry -split ',') {
+        $Items = $Item.Split('',[System.StringSplitOptions]::RemoveEmptyEntries)
+        $Package = $Items[0]
+        $Params = " -Opt `'" + ($Items[1..$Items.Length] -join ' ' -replace "`'","`'`'") + "`'"
         $WScriptShell = New-Object -ComObject WScript.Shell
         $Shortcut = $WScriptShell.CreateShortcut("$WDir\$Package.lnk")
-        $Shortcut.TargetPath = 'powershell.exe'
-        $Shortcut.Arguments = "-Command `"`$WDir = Get-Location | Select-Object -ExpandProperty Path; Start-Process powershell.exe -Verb RunAs -ArgumentList \`"-NoProfile -ExecutionPolicy Unrestricted -Command `"```$App = `'$Package`'; Set-Location `'`"`$WDir`"`'; `& `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`'`"\`"`""
+        $Shortcut.TargetPath = 'CMD'
+        $Shortcut.Arguments = "/C PowerShell `"SL -PSPath `'%CD%`'; `$Path = (GL).Path; SL ~; Start PowerShell -Verb RunAs -Args \`"-NoProfile -ExecutionPolicy Unrestricted `"SL -PSPath `'`"`$Path`"`'; & `'`"%ChocolateyInstall%\lib\ChocoShortcuts\Tools\ChocoShortcuts.ps1`"`' $Package $Params`"\`"`""
         $Shortcut.IconLocation = '%ProgramData%\chocolatey\choco.exe'
         $Shortcut.Save()
     }
-    "Shortcuts have been created in $WDir"
-    ''
-    'Enter [1] to open the folder'
-    'Enter [2] to create more shortcuts'
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    "Shortcuts have been created in $WDir";''
+    (w 'Enter ')+(y '1 ')+'to open the folder'
+    (w 'Enter ')+(y '2 ')+'to create another shortcut'
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '1') {
         Invoke-Item $WDir
-        Clear-Host
-        $Header
+        Clear-Host; Header
         AddNew
     }
     elseif ($Entry -eq '2') {
-        Clear-Host
-        $Header
+        Clear-Host; Header
         AddNew
     }
     elseif ($Entry -eq '') {
         Exit
     }
     else {
-        Clear-Host
-        $Header
+        Clear-Host; Header
         AddNew
     }
 }
-
 function Search {
-    Clear-Host
-    $Header
-    $Search = Read-Host 'Search for packages'
+    Clear-Host; Header
+    (w 'Enter your ')+(y 'search terms')+''
+    (w 'Or press ')+(y 'Enter ')+'to cancel';''
+    $Search = Read-Host
     if ($Search -eq '') {
-        Clear-Host
-        $Header
+        Clear-Host; Header
         AddNew
     }
     else {
-        (choco list $Search -r) -replace '\|',' (v' -replace '$',')'
-        AddNew
+        Clear-Host; Header
+        "Searching for ""$Search"""       
+        $Results = choco list $Search -r
+        if ($Results -eq $null) {
+            Clear-Host; Header
+            "No results for ""$Search"""
+            (w 'Press ')+(y 'Enter ')+'to cancel'; Read-Host
+            Search
+        }
+        else {
+            Clear-Host; Header
+            "Search results for ""$Search"":";''
+            $Results -replace '\|',' (v' -replace '$',')';'' 
+            AddNew
+        }
     }
 }
-
 function UpdateCheck {
-    Clear-Host
-    $Header
+    Clear-Host; Header
     'Checking Chocolatey.org for updates...'
     $Outdated = choco outdated -r | Where-Object {$_ -notmatch '.install'}
     if ($Outdated[3] -eq $null) {
-        Clear-Host
-        $Header
-        'No updates are available'
-        Read-Host "`r`nPress [Enter] to exit"
+        Clear-Host; Header
+        'No updates are available';''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     else {
@@ -276,19 +304,16 @@ function UpdateCheck {
             $Package -replace '\|(\d*\.)*\d*\|',' v' -replace '\|\D*$'
         }
         if ($Updates -isnot [system.array]) {
-            Clear-Host
-            $Header
-            'An update is available:'
-            $Updates
-            ''
-            'Enter [1] to update'
-            'Or press [Enter] to exit'
-            $Entry = Read-Host
+            Clear-Host; Header
+            'An update is available:';''
+            "  $Updates";''
+            (w 'Enter ')+(y '1 ')+'to install the update'
+            (w 'Or press ')+(y 'Enter ')+'to exit'
+            $Entry = Read-Host "`n"
             if ($Entry -eq '1') {
-                Clear-Host
-                $Header                
-                choco upgrade -y ($Updates -replace ' v.*$')
-                Read-Host "`r`nPress [Enter] to exit"
+                Clear-Host; Header                
+                choco upgrade ($Updates -replace ' v.*$') -r -y;''
+                (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
                 Exit
             }
             else {
@@ -300,29 +325,23 @@ function UpdateCheck {
         }
     }
 }
-
 function UpdateAll {
-    Clear-Host
-    $Header
-    'The following updates are available:'
-    $Updates
-    ''
-    'Enter [1] to update all packages'
-    'Enter [2] to select packages to update'
-    'Or press [Enter] to exit'
-    $Entry = Read-Host
+    Clear-Host; Header
+    'The following updates are available:';''
+    $Updates;''
+    (w 'Enter ')+(y '1 ')+'to install all updates'
+    (w 'Enter ')+(y '2 ')+'to select updates to install'
+    (w 'Or press ')+(y 'Enter ')+'to exit'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '1') {
-        Clear-Host
-        $Header
-        'Installing the following updates:'
-        $Updates
-        ''
+        Clear-Host; Header
+        'Installing:'
+        $Updates;''
         ForEach ($Package in $Updates) {
-            choco upgrade -y ($Package -replace ' v.*$')
+            choco upgrade ($Package -replace ' v.*$') -r -y
         }
-        ''
-        'Updates are complete'
-        Read-Host "`r`nPress [Enter] to exit"
+        '';'Installation complete';''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     elseif ($Entry -eq '2') {
@@ -335,19 +354,15 @@ function UpdateAll {
         UpdateAll
     }
 }
-
 function UpdateSelect {
-    Clear-Host
-    $Header
-    'Enter the (comma separated) numbers of one or more packages'
-    ''
+    Clear-Host; Header
+    'Enter the comma separated numbers of one or more updates to install:';''
     ForEach ($Package in $Updates) {
         $Selector++
-        "[$Selector] $Package"
+        (w ' ')+(y $Selector)+". $Package"
     }
-    ''
-    'Or press [Enter] to go back'
-    $Entry = Read-Host
+    '';(w 'Or press ')+(y 'Enter ')+'to cancel'
+    $Entry = Read-Host "`n"
     if ($Entry -eq '') {
         $Selector = 0
         UpdateAll
@@ -356,17 +371,14 @@ function UpdateSelect {
         $Number = ForEach ($Selector in ($Entry -split ',' -replace '\s')) {
             $Selector - 1 -as [int]
         }
-        Clear-Host
-        $Header
-        'Installing the following updates:'
-        $Updates[$Number]
-        ''
+        Clear-Host; Header
+        'Installing:'
+        $Updates[$Number];''
         ForEach ($Package in ($Updates[$Number] -replace ' v\d.*$')) {
-            choco upgrade -y $Package
+            choco upgrade $Package -r -y
         }
-        ''
-        'Updates are complete'
-        Read-Host "`r`nPress [Enter] to exit"
+        '';'Installation complete';''
+        (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     else {
@@ -374,9 +386,4 @@ function UpdateSelect {
         UpdateSelect
     }
 }
-$WDir = Get-Location | Select-Object -ExpandProperty Path
-$Header = @'
- Chocolatey Shortcuts
-~~~~~~~~~~~~~~~~~~~~~~~
-'@
 Check
