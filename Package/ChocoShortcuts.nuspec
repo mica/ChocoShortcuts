@@ -4,7 +4,7 @@
 <metadata>
   <id>ChocoShortcuts</id>
   <title>Chocolatey Shortcuts (unofficial)</title>
-  <version>0.2</version>
+  <version>0.3</version>
   <authors>mica</authors>
   <owners>mica</owners>
   <projectUrl>https://github.com/mica/ChocoShortcuts</projectUrl>
@@ -29,13 +29,13 @@ Create shortcuts for packages using "+Add Package Shortcuts". There you'll find 
 Launching package shortcuts will present you with options to install (if not installed), update (if available), or uninstall packages. Update multiple packages at once using "+Check for Package Updates".
   </description>
   <releaseNotes>
-- Now can install with options, which can be embedded in the shortcut or entered as a one-off
-- Switched to CMD for passing the working directory to an elevated PowerShell prompt (because of this bug: https://goo.gl/BrsnfO)
-- Added colored text
+- Fixed the bulk update function, which had been giving only a partal list of outdated packages since Chocolatey v0.10.5
+- Added uninstall script for removing the initial two shortcuts if the folder is otherwise empty
   </releaseNotes>
 </metadata>
 <files>
   <file src="Tools\ChocolateyInstall.ps1" target="Tools" />
+  <file src="Tools\ChocolateyUninstall.ps1" target="Tools" />
   <file src="Tools\ChocoShortcuts.ps1" target="Tools" />
 </files>
 </package>

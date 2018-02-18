@@ -1,4 +1,4 @@
-﻿# Chocolatey Shortcuts v0.2
+﻿# Chocolatey Shortcuts v0.3
 # https://github.com/mica/ChocoShortcuts/
 
 param([Parameter(Position = 0)] [string]$App = $App, [string]$Opt)
@@ -293,14 +293,14 @@ function UpdateCheck {
     Clear-Host; Header
     'Checking Chocolatey.org for updates...'
     $Outdated = choco outdated -r | Where-Object {$_ -notmatch '.install'}
-    if ($Outdated[3] -eq $null) {
+    if ($Outdated -eq $null) {
         Clear-Host; Header
         'No updates are available';''
         (w 'Press ')+(y 'Enter ')+'to exit'; Read-Host
         Exit
     }
     else {
-        $Updates = ForEach ($Package in $Outdated[3..($Outdated.Length)]) {
+        $Updates = ForEach ($Package in $Outdated[0..($Outdated.Length)]) {
             $Package -replace '\|(\d*\.)*\d*\|',' v' -replace '\|\D*$'
         }
         if ($Updates -isnot [system.array]) {
