@@ -4,7 +4,7 @@
 <metadata>
   <id>ChocoShortcuts</id>
   <title>Chocolatey Shortcuts (unofficial)</title>
-  <version>0.3</version>
+  <version>0.4</version>
   <authors>mica</authors>
   <owners>mica</owners>
   <projectUrl>https://github.com/mica/ChocoShortcuts</projectUrl>
@@ -29,8 +29,9 @@ Create shortcuts for packages using "+Add Package Shortcuts". There you'll find 
 Launching package shortcuts will present you with options to install (if not installed), update (if available), or uninstall packages. Update multiple packages at once using "+Check for Package Updates".
   </description>
   <releaseNotes>
-- Fixed the bulk update function, which had been giving only a partal list of outdated packages since Chocolatey v0.10.5
-- Added uninstall script for removing the initial two shortcuts if the folder is otherwise empty
+- Added options/switches for updates, as set in shortcuts, or entered individually 
+- Added "visit package webpage" selection
+- Fixed bulk update, which was failing when only one update available
   </releaseNotes>
 </metadata>
 <files>
