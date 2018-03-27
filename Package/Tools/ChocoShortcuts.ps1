@@ -1,4 +1,4 @@
-﻿# Chocolatey Shortcuts v0.4
+﻿# Chocolatey Shortcuts v0.4.1
 # https://github.com/mica/ChocoShortcuts/
 
 param([Parameter(Position = 0)] [string]$App = $App, [string]$Opt)
@@ -259,7 +259,6 @@ function Update {
     }
 }
 function AddNew {
-    Clear-Host; Header    
     'Create new shortcuts for installing, updating, or uninstalling packages'
     ''
     (w 'Enter one or more comma separated ')+(y 'package ID ')+(w 'with any ')+(y 'options ')+'you''d like to use (see package webpage)'
@@ -284,6 +283,7 @@ function AddNew {
             Generate
         }
         else {
+            Clear-Host; Header
             AddNew
         }
     }
